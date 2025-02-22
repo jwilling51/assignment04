@@ -1,0 +1,46 @@
+---
+title: "Data Science for Public Policy"
+subtitle: "Assignment 4"
+author: "Johnny Willing - jaw387, Sarah Krause - sk2457"
+execute:
+  warning: false
+format:
+  html:
+    embed-resources: true
+---
+
+
+```{r}
+library(tidyverse)
+
+```
+
+
+# Graph 01
+
+```{r}
+
+
+```
+
+# Graph 02
+
+```{r}
+
+
+```
+
+# Graph 03
+
+```{r}
+
+
+```
+
+# Graph 04
+
+```{r}
+
+
+```
+
