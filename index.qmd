@@ -12,9 +12,23 @@ format:
 
 ```{r}
 library(tidyverse)
-
+library(readxl)
+full_data <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
+library(lubridate)
 ```
+```{r}
+# Cleaning the data
+full_data <- full_data |>
+  janitor::clean_names()
 
+data_no_duplicates <- full_data |>
+  filter(is.na(duplicate_subject_indicator))
+
+clean_data <- data_no_duplicates |>
+  mutate(event_created_datetime = ymd_hms(event_created_datetime)) |>
+  mutate(month = month(event_created_datetime)) |>
+  mutate(month_name = month(event_created_datetime, label = TRUE, abbr = FALSE))
+```
 
 # Graph 01
 
