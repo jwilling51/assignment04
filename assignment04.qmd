@@ -1,0 +1,60 @@
+---
+title: "Assignment 4"
+format: html
+editor: visual
+---
+
+# Data Preparation
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(ggplot2)
+library(janitor)
+
+inadmissibles_2014 <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
+
+inadmissibles_2014 <-
+  clean_names(inadmissibles_2014) |>
+  filter(is.na(duplicate_subject_indicator))
+
+glimpse(inadmissibles_2014)
+
+```
+
+# Graph 1
+
+```{r}
+inadmissibles_2014 |>
+  count(citizenship_country_name) |>
+  arrange(desc(n)) |>
+  mutate(country_rank = row_number()) |>
+  right_join(inadmissibles_2014, by = "citizenship_country_name") |>
+  filter(country_rank <= 10) |>
+  ggplot() +
+  geom_count(mapping = aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport, size = n, color = mode_of_transport)) +
+  scale_size_area(max_size = 15) + 
+  theme(axis.text.x = element_text(angle = 45)) + 
+  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Counts")
+
+```
+
+# Graph 2
+
+```{r}
+
+```
+
+# Graph 3
+
+```{r}
+
+```
+
+# Graph 4
+
+```{r}
+
+```
+
