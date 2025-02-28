@@ -31,7 +31,7 @@ glimpse(inadmissibles_2014)
 
 # Graph 1
 
-Questions about this graph for office hours: For the number labels on each bubble - can they ?
+Questions about this graph for office hours: For the number labels on each bubble - can they be right above the bubble rather than a fixed distance?
 
 ```{r}
 inadmissibles_2014 |>
@@ -48,7 +48,7 @@ inadmissibles_2014 |>
   geom_text(mapping = aes(label = crossings), vjust = -2.6, size = 3.3) +
   scale_size_area(max_size = 15) + 
   theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
-  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport") 
+  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport")
 
 ```
 
