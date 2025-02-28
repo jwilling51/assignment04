@@ -6,6 +6,9 @@ editor: visual
 
 # Data Preparation
 
+General questions for office hours: 
+Should we be doing all of our coding in the index.qmd file, or in a separate file?
+
 ```{r}
 library(tidyverse)
 library(readxl)
@@ -17,13 +20,19 @@ inadmissibles_2014 <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
 
 inadmissibles_2014 <-
   clean_names(inadmissibles_2014) |>
-  filter(is.na(duplicate_subject_indicator))
+  filter(is.na(duplicate_subject_indicator)) |>
+  mutate(event_created_datetime = ymd_hms(event_created_datetime)) |>
+  mutate(month = month(event_created_datetime)) |>
+  mutate(month_name = month(event_created_datetime, label = TRUE, abbr = FALSE))
 
 glimpse(inadmissibles_2014)
 
 ```
 
 # Graph 1
+
+Questions about this graph for office hours:
+Adding number labels on each bubble?
 
 ```{r}
 inadmissibles_2014 |>
@@ -32,15 +41,21 @@ inadmissibles_2014 |>
   mutate(country_rank = row_number()) |>
   right_join(inadmissibles_2014, by = "citizenship_country_name") |>
   filter(country_rank <= 10) |>
+  group_by(month, citizenship_country_name, mode_of_transport) |>
+  mutate(crossings = n()) |>
+  ungroup() |>
   ggplot() +
-  geom_count(mapping = aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport, size = n, color = mode_of_transport)) +
+  geom_count(mapping = aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport, size = crossings, color = mode_of_transport)) +
   scale_size_area(max_size = 15) + 
-  theme(axis.text.x = element_text(angle = 45)) + 
-  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Counts", title = "Counts of ")
+  theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
+  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport") 
 
 ```
 
 # Graph 2
+
+Questions about this graph for office hours:
+Should we get rid of the rows that are causing the warning? Or just suppress the warning?
 
 ```{r}
 inadmissibles_2014 |>
@@ -57,13 +72,34 @@ inadmissibles_2014 |>
 ```
 
 # Graph 3
+Questions for office hours:
+Can I make these a bit wider? It's very condensed right now
 
 ```{r}
+
+inadmissibles_2014 |>
+  count(citizenship_country_name) |>
+  arrange(desc(n)) |>
+  mutate(country_rank = row_number()) |>
+  right_join(inadmissibles_2014, by = "citizenship_country_name") |>
+  filter(country_rank <= 5, month != "NA") |>
+  group_by(month, citizenship_country_name, mode_of_transport) |>
+  mutate(crossings = n()) |>
+  ungroup() |>
+  ggplot(mapping = aes(x = month_name, y = crossings, color = fct_infreq(citizenship_country_name), group = citizenship_country_name)) +
+  geom_line() +
+  geom_point(mapping = aes(shape = fct_infreq(citizenship_country_name))) +
+  scale_y_log10() +
+  facet_wrap(~mode_of_transport) +
+  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin") +
+  theme(axis.text.x = element_text(angle = 45))
+
 
 ```
 
 # Graph 4
 
 ```{r}
+
 
 ```
