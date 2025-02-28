@@ -6,14 +6,14 @@ editor: visual
 
 # Data Preparation
 
-General questions for office hours: 
-Should we be doing all of our coding in the index.qmd file, or in a separate file?
+General questions for office hours: Should we be doing all of our coding in the index.qmd file, or in a separate file?
 
 ```{r}
 library(tidyverse)
 library(readxl)
 library(lubridate)
 library(ggplot2)
+library(ggrepel)
 library(janitor)
 
 inadmissibles_2014 <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
@@ -31,8 +31,7 @@ glimpse(inadmissibles_2014)
 
 # Graph 1
 
-Questions about this graph for office hours:
-Adding number labels on each bubble?
+Questions about this graph for office hours: For the number labels on each bubble - can they ?
 
 ```{r}
 inadmissibles_2014 |>
@@ -41,11 +40,12 @@ inadmissibles_2014 |>
   mutate(country_rank = row_number()) |>
   right_join(inadmissibles_2014, by = "citizenship_country_name") |>
   filter(country_rank <= 10) |>
-  group_by(month, citizenship_country_name, mode_of_transport) |>
+  group_by(citizenship_country_name, mode_of_transport) |>
   mutate(crossings = n()) |>
   ungroup() |>
-  ggplot() +
-  geom_count(mapping = aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport, size = crossings, color = mode_of_transport)) +
+  ggplot(mapping=aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport)) +
+  geom_count(mapping = aes(size = crossings, color = mode_of_transport)) +
+  geom_text(mapping = aes(label = crossings), vjust = -2.6, size = 3.3) +
   scale_size_area(max_size = 15) + 
   theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
   labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport") 
@@ -54,8 +54,7 @@ inadmissibles_2014 |>
 
 # Graph 2
 
-Questions about this graph for office hours:
-Should we get rid of the rows that are causing the warning? Or just suppress the warning?
+Questions about this graph for office hours: Should we get rid of the rows that are causing the warning? Or just suppress the warning?
 
 ```{r}
 inadmissibles_2014 |>
@@ -72,8 +71,8 @@ inadmissibles_2014 |>
 ```
 
 # Graph 3
-Questions for office hours:
-Can I make these a bit wider? It's very condensed right now
+
+Questions for office hours: Can I make these a bit wider? It's very condensed right now
 
 ```{r}
 
