@@ -76,6 +76,24 @@ inadmissibles_2014 |>
 
 ```{r}
 
+#| fig-width: 10
+
+inadmissibles_2014 |>
+  count(citizenship_country_name) |>
+  arrange(desc(n)) |>
+  mutate(country_rank = row_number()) |>
+  right_join(inadmissibles_2014, by = "citizenship_country_name") |>
+  filter(country_rank <= 5, month != "NA") |>
+  group_by(month, citizenship_country_name, mode_of_transport) |>
+  mutate(crossings = n()) |>
+  ungroup() |>
+  ggplot(mapping = aes(x = month, y = crossings, color = fct_infreq(citizenship_country_name), group = citizenship_country_name)) +
+  geom_line() +
+  geom_point(mapping = aes(shape = fct_infreq(citizenship_country_name))) +
+  scale_y_log10() +
+  scale_x_continuous(breaks = seq(0, 12, by=1)) +
+  facet_wrap(~mode_of_transport) +
+  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin")
 
 ```
 
