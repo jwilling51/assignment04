@@ -13,33 +13,52 @@ format:
 ```{r}
 library(tidyverse)
 library(readxl)
-full_data <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
 library(lubridate)
-```
-```{r}
-# Cleaning the data
-full_data <- full_data |>
-  janitor::clean_names()
+library(ggplot2)
+library(ggrepel)
+library(janitor)
+library(sf)
+library(tigris)
 
-data_no_duplicates <- full_data |>
-  filter(is.na(duplicate_subject_indicator))
+inadmissibles_2014 <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
 
-clean_data <- data_no_duplicates |>
+inadmissibles_2014 <-
+  clean_names(inadmissibles_2014) |>
+  filter(is.na(duplicate_subject_indicator)) |>
   mutate(event_created_datetime = ymd_hms(event_created_datetime)) |>
   mutate(month = month(event_created_datetime)) |>
   mutate(month_name = month(event_created_datetime, label = TRUE, abbr = FALSE))
+
+glimpse(inadmissibles_2014)
+
 ```
 
 # Graph 01
 
 ```{r}
 
+inadmissibles_2014 |>
+  count(citizenship_country_name) |>
+  arrange(desc(n)) |>
+  mutate(country_rank = row_number()) |>
+  right_join(inadmissibles_2014, by = "citizenship_country_name") |>
+  filter(country_rank <= 10) |>
+  group_by(citizenship_country_name, mode_of_transport) |>
+  mutate(crossings = n()) |>
+  ungroup() |>
+  ggplot(mapping=aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport)) +
+  geom_count(mapping = aes(size = crossings, color = mode_of_transport)) +
+  geom_text(mapping = aes(label = crossings), vjust = -2.6, check_overlap = TRUE) +
+  scale_size_area(max_size = 15) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
+  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport")
 
 ```
 
 # Graph 02
 
 ```{r}
+
 
 
 ```
