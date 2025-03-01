@@ -51,7 +51,7 @@ inadmissibles_2014 |>
   geom_text(mapping = aes(label = crossings), vjust = -2.6, check_overlap = TRUE) +
   scale_size_area(max_size = 15) + 
   theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
-  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport")
+  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Inadmissibles by Country of Origin and Mode of Transport")
 
 ```
 
@@ -93,7 +93,7 @@ inadmissibles_2014 |>
   scale_y_log10() +
   scale_x_continuous(breaks = seq(0, 12, by=1)) +
   facet_wrap(~mode_of_transport) +
-  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin")
+  labs(x = "Month", y = "Number of Crossings", title = "Inadmissibles by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin")
 
 ```
 
@@ -137,7 +137,7 @@ ggplot() +
                show.legend = FALSE, nudge_y = -2.0) +
   scale_size_area(max_size = 15) +
   theme_void() +
-  labs(title = "Top 5 Field Offices for Unauthorized Border Crossings (2014)") +
+  labs(title = "Top 5 Customs and Border Protection Field Offices for\nProcessing Inadmissibles (2014)") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
