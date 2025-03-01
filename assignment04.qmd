@@ -142,47 +142,25 @@ n <- inadmissibles_2014 |>
 
 join <- left_join(x = top_cities, y = n, by = "field_office_name")
 
-laredo <- st_point_on_surface(x = join) |>
-  filter(field_office_name == "Laredo, TX")
+points <- st_point_on_surface(x = join)
 
-miami <- st_point_on_surface(x = join) |>
-  filter(field_office_name == "Miami, FL")
-
-new_orleans <- st_point_on_surface(x = join) |>
-  filter(field_office_name == "New Orleans, LA")
-
-san_diego <- st_point_on_surface(x = join) |>
-  filter(field_office_name == "San Diego, CA")
-
-san_francisco <- st_point_on_surface(x = join) |>
-  filter(field_office_name == "San Francisco, CA")
+# draft 2
 
 ggplot() + 
   geom_sf(data = states, fill = NA) + 
-  geom_sf(data = laredo, color = "blue", size = 10) + 
-  geom_sf_text(data = laredo, aes(label = field_office_name,),
+  geom_sf(data = points, alpha = 0.5, aes(size = n, color = field_office_name),
+          show.legend = FALSE) + 
+  geom_sf_text(data = points, aes(label = field_office_name), fontface = "bold",
+               nudge_x = ifelse(points$field_office_name == "San Francisco, CA", 2.0, 0),
                nudge_y = 2.0) +
-  geom_sf_text(data = laredo, aes(label = n),
-               nudge_y = -2.0) +
-  geom_sf(data = san_diego, color = "green", size = 8) +
-  geom_sf_text(data = san_diego, aes(label = field_office_name),
-               nudge_y = 2.0) +
-  geom_sf_text(data = san_diego, aes(label = n),
-               nudge_y = -2.0) +
-  geom_sf(data = san_francisco, color = "red", size = 2) +
-  geom_sf_text(data = san_francisco, aes(label = field_office_name),
-               nudge_y = 1.5, nudge_x = 1.5) +
-  geom_sf_text(data = san_francisco, aes(label = n),
-               nudge_y = -2.0) +
-  geom_sf(data = new_orleans, color = "orange", size = 4) +
-  geom_sf_text(data = new_orleans, aes(label = field_office_name),
-               nudge_y = 1.5) +
-  geom_sf_text(data = new_orleans, aes(label = n),
-               nudge_y = -2.0) +
-  geom_sf(data = miami, color = "pink", size = 6) +
-  geom_sf_text(data = miami, aes(label = field_office_name),
-               nudge_y = 1.5) +
-  geom_sf_text(data = miami, aes(label = n),
-               nudge_y = -2.0) +
-  theme_void()
+  geom_sf_text(data = points, aes(label = n), , fontface = "bold",
+               show.legend = FALSE, nudge_y = -2.0) +
+  scale_size_area(max_size = 15) +
+  theme_void() +
+  labs(title = "Top 5 Field Offices for Unauthorized Border Crossings (2014)") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+
+# change the color of the text
+# consider asking D'angelo about if there's a more efficient way
 ```
