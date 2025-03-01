@@ -15,6 +15,8 @@ library(lubridate)
 library(ggplot2)
 library(ggrepel)
 library(janitor)
+library(sf)
+library(tigris)
 
 inadmissibles_2014 <- read_excel("cy_2014_ofo_inadmissibles_redacted.xlsx")
 
@@ -31,9 +33,8 @@ glimpse(inadmissibles_2014)
 
 # Graph 1
 
-Questions about this graph for office hours: For the number labels on each bubble - can they be right above the bubble rather than a fixed distance?
-
 ```{r}
+
 inadmissibles_2014 |>
   count(citizenship_country_name) |>
   arrange(desc(n)) |>
@@ -45,7 +46,7 @@ inadmissibles_2014 |>
   ungroup() |>
   ggplot(mapping=aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport)) +
   geom_count(mapping = aes(size = crossings, color = mode_of_transport)) +
-  geom_text(mapping = aes(label = crossings), vjust = -2.6, size = 3.3) +
+  geom_text(mapping = aes(label = crossings), vjust = -2.6, check_overlap = TRUE) +
   scale_size_area(max_size = 15) + 
   theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
   labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport")
@@ -54,27 +55,24 @@ inadmissibles_2014 |>
 
 # Graph 2
 
-Questions about this graph for office hours: Should we get rid of the rows that are causing the warning? Or just suppress the warning?
-
 ```{r}
 inadmissibles_2014 |>
   count(citizenship_country_name) |>
   arrange(desc(n)) |>
   mutate(country_rank = row_number()) |>
   right_join(inadmissibles_2014, by = "citizenship_country_name") |>
-  filter(country_rank <= 10) |>
+  filter(country_rank <= 10, !is.na(age_at_event_creation_time)) |>
   ggplot() +
   geom_boxplot(mapping = aes(x = fct_infreq(citizenship_country_name), y = age_at_event_creation_time)) +
   labs(x = "Country of origin", y = "Age", title = "Age distributions by country of origin") +
-  theme(axis.text.x = element_text(angle = 45))
+  theme(axis.text.x = element_text(angle = 45, vjust = .85))
 
 ```
 
 # Graph 3
 
-Questions for office hours: Can I make these a bit wider? It's very condensed right now
-
 ```{r}
+#| fig-width: 10
 
 inadmissibles_2014 |>
   count(citizenship_country_name) |>
@@ -85,14 +83,13 @@ inadmissibles_2014 |>
   group_by(month, citizenship_country_name, mode_of_transport) |>
   mutate(crossings = n()) |>
   ungroup() |>
-  ggplot(mapping = aes(x = month_name, y = crossings, color = fct_infreq(citizenship_country_name), group = citizenship_country_name)) +
+  ggplot(mapping = aes(x = month, y = crossings, color = fct_infreq(citizenship_country_name), group = citizenship_country_name)) +
   geom_line() +
   geom_point(mapping = aes(shape = fct_infreq(citizenship_country_name))) +
   scale_y_log10() +
+  scale_x_continuous(breaks = seq(0, 12, by=1)) +
   facet_wrap(~mode_of_transport) +
-  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin") +
-  theme(axis.text.x = element_text(angle = 45))
-
+  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin")
 
 ```
 
@@ -100,5 +97,26 @@ inadmissibles_2014 |>
 
 ```{r}
 
+# geom_sf(), map of US with bubbles on each entry city
+# tigris function urban_areas()
 
+urban_areas <- urban_areas(cb = TRUE, year = 2014) 
+
+top_cities <- urban_areas |>
+  filter(NAME10 %in% c("Laredo, TX", "San Diego, CA", "Miami, FL", "New Orleans, LA", "San Francisco, CA"))
+
+states <- tigris::states(cb = TRUE, progress_bar = FALSE) |>
+  filter(!STATEFP %in% c("78", "69", "66", "60", "72", "02", "15"))
+
+ggplot() + 
+  geom_sf(data = states, fill = NA) + 
+  geom_sf(data = top_cities, color = "blue", size = 2.0, alpha = 0.5) +
+  theme_void()
+
+# problem = doesn't look like points because they are not single longitude and latitude
+# I don't think the size and alpha arguments are doing anything here
+# thinking about making a matrix containing the longitude and latitude of the 
+# field offices and then overlaying that object on top of the map so that there
+# are points showing their locations
+# havent thought about how to add a label onto those points
 ```
