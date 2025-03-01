@@ -100,7 +100,44 @@ inadmissibles_2014 |>
 # Graph 04
 
 ```{r}
+urban_areas <- urban_areas(cb = TRUE, year = 2014) 
 
+top_cities <- urban_areas |>
+  filter(NAME10 %in% c("Laredo, TX", "San Diego, CA", "Miami, FL", "New Orleans, LA", "San Francisco--Oakland, CA")) |>
+  mutate(NAME10 = replace(NAME10, NAME10 == "San Francisco--Oakland, CA", "San Francisco, CA"))
 
+top_cities <- top_cities |>
+  rename(field_office_name = NAME10)
+  
+states <- tigris::states(cb = TRUE, progress_bar = FALSE) |>
+  filter(!STATEFP %in% c("78", "69", "66", "60", "72", "02", "15"))
+
+n <- inadmissibles_2014 |>
+  count(field_office_name) |>
+  arrange(desc(n)) |>
+  filter(field_office_name %in% c("LAREDO", "SAN DIEGO", "MIAMI", "NEW ORLEANS", "SAN FRANCISCO")) |>
+  mutate(field_office_name = case_when(field_office_name == "LAREDO" ~ "Laredo, TX",
+                   field_office_name == "SAN DIEGO" ~ "San Diego, CA", 
+                   field_office_name == "MIAMI" ~ "Miami, FL",
+                   field_office_name == "NEW ORLEANS" ~ "New Orleans, LA",
+                   field_office_name == "SAN FRANCISCO" ~ "San Francisco, CA"))
+
+join <- left_join(x = top_cities, y = n, by = "field_office_name")
+
+points <- st_point_on_surface(x = join)
+
+ggplot() + 
+  geom_sf(data = states, fill = NA) + 
+  geom_sf(data = points, alpha = 0.5, aes(size = n, color = field_office_name),
+          show.legend = FALSE) + 
+  geom_sf_text(data = points, aes(label = field_office_name), fontface = "bold",
+               nudge_x = ifelse(points$field_office_name == "San Francisco, CA", 2.0, 0),
+               nudge_y = 2.0) +
+  geom_sf_text(data = points, aes(label = n), , fontface = "bold",
+               show.legend = FALSE, nudge_y = -2.0) +
+  scale_size_area(max_size = 15) +
+  theme_void() +
+  labs(title = "Top 5 Field Offices for Unauthorized Border Crossings (2014)") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
