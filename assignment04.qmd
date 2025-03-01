@@ -13,6 +13,7 @@ library(tidyverse)
 library(readxl)
 library(lubridate)
 library(ggplot2)
+library(ggrepel)
 library(janitor)
 library(sf)
 library(tigris)
@@ -32,68 +33,46 @@ glimpse(inadmissibles_2014)
 
 # Graph 1
 
-Questions about this graph for office hours: Adding number labels on each bubble?
-
 ```{r}
+
 inadmissibles_2014 |>
   count(citizenship_country_name) |>
   arrange(desc(n)) |>
   mutate(country_rank = row_number()) |>
   right_join(inadmissibles_2014, by = "citizenship_country_name") |>
   filter(country_rank <= 10) |>
-  group_by(month, citizenship_country_name, mode_of_transport) |>
+  group_by(citizenship_country_name, mode_of_transport) |>
   mutate(crossings = n()) |>
   ungroup() |>
-  ggplot() +
-  geom_count(mapping = aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport, size = crossings, color = mode_of_transport)) +
+  ggplot(mapping=aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport)) +
+  geom_count(mapping = aes(size = crossings, color = mode_of_transport)) +
+  geom_text(mapping = aes(label = crossings), vjust = -2.6, check_overlap = TRUE) +
   scale_size_area(max_size = 15) + 
   theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
-  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport") 
+  labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", size = "Number of Crossings", title = "Counts of Unauthorized Border Crossings by Country of Origin and\nMode of Transport")
 
 ```
 
 # Graph 2
 
-Questions about this graph for office hours: Should we get rid of the rows that are causing the warning? Or just suppress the warning?
-
 ```{r}
 inadmissibles_2014 |>
   count(citizenship_country_name) |>
   arrange(desc(n)) |>
   mutate(country_rank = row_number()) |>
   right_join(inadmissibles_2014, by = "citizenship_country_name") |>
-  filter(country_rank <= 10) |>
+  filter(country_rank <= 10, !is.na(age_at_event_creation_time)) |>
   ggplot() +
   geom_boxplot(mapping = aes(x = fct_infreq(citizenship_country_name), y = age_at_event_creation_time)) +
   labs(x = "Country of origin", y = "Age", title = "Age distributions by country of origin") +
-  theme(axis.text.x = element_text(angle = 45))
+  theme(axis.text.x = element_text(angle = 45, vjust = .85))
 
 ```
 
 # Graph 3
 
-Questions for office hours: Can I make these a bit wider? It's very condensed right now
-
 ```{r}
-
-inadmissibles_2014 |>
-  count(citizenship_country_name) |>
-  arrange(desc(n)) |>
-  mutate(country_rank = row_number()) |>
-  right_join(inadmissibles_2014, by = "citizenship_country_name") |>
-  filter(country_rank <= 5, month != "NA") |>
-  group_by(month, citizenship_country_name, mode_of_transport) |>
-  mutate(crossings = n()) |>
-  ungroup() |>
-  ggplot(mapping = aes(x = month_name, y = crossings, color = fct_infreq(citizenship_country_name), group = citizenship_country_name)) +
-  geom_line() +
-  geom_point(mapping = aes(shape = fct_infreq(citizenship_country_name))) +
-  scale_y_log10() +
-  facet_wrap(~mode_of_transport) +
-  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin") +
-  theme(axis.text.x = element_text(angle = 45))
-
-# Graph 3 Draft 2: Numeric Months on the x-axis
+#| fig-width: 10
 
 inadmissibles_2014 |>
   count(citizenship_country_name) |>
@@ -110,8 +89,8 @@ inadmissibles_2014 |>
   scale_y_log10() +
   scale_x_continuous(breaks = seq(0, 12, by=1)) +
   facet_wrap(~mode_of_transport) +
-  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin") +
-  theme(axis.text.x = element_text(angle = 45))
+  labs(x = "Month", y = "Number of Crossings", title = "Unauthorized Border Crossings by Month, Country, and Mode of Transport", color = "Country of Origin", shape = "Country of Origin")
+
 ```
 
 # Graph 4
