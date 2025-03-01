@@ -46,9 +46,11 @@ inadmissibles_2014 |>
   group_by(citizenship_country_name, mode_of_transport) |>
   mutate(crossings = n()) |>
   ungroup() |>
-  ggplot(mapping=aes(x = fct_infreq(citizenship_country_name), y = mode_of_transport)) +
+  ggplot(mapping=aes(x = fct_infreq(citizenship_country_name), 
+                     y = mode_of_transport)) +
   geom_count(mapping = aes(size = crossings, color = mode_of_transport)) +
-  geom_text(mapping = aes(label = crossings), vjust = -2.6, check_overlap = TRUE) +
+  geom_text(mapping = aes(label = crossings), vjust = -2.6, 
+            check_overlap = TRUE) +
   scale_size_area(max_size = 15) + 
   theme(axis.text.x = element_text(angle = 45, vjust = .85)) + 
   labs(x = "Country", y = "Mode of Transport", color = "Mode of Transport", 
