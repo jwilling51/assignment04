@@ -118,26 +118,71 @@ inadmissibles_2014 |>
 
 ```{r}
 
-# geom_sf(), map of US with bubbles on each entry city
-# tigris function urban_areas()
-
 urban_areas <- urban_areas(cb = TRUE, year = 2014) 
 
 top_cities <- urban_areas |>
-  filter(NAME10 %in% c("Laredo, TX", "San Diego, CA", "Miami, FL", "New Orleans, LA", "San Francisco, CA"))
+  filter(NAME10 %in% c("Laredo, TX", "San Diego, CA", "Miami, FL", "New Orleans, LA", "San Francisco--Oakland, CA")) |>
+  mutate(NAME10 = replace(NAME10, NAME10 == "San Francisco--Oakland, CA", "San Francisco, CA"))
 
+top_cities <- top_cities |>
+  rename(field_office_name = NAME10)
+  
 states <- tigris::states(cb = TRUE, progress_bar = FALSE) |>
   filter(!STATEFP %in% c("78", "69", "66", "60", "72", "02", "15"))
 
+n <- inadmissibles_2014 |>
+  count(field_office_name) |>
+  arrange(desc(n)) |>
+  filter(field_office_name %in% c("LAREDO", "SAN DIEGO", "MIAMI", "NEW ORLEANS", "SAN FRANCISCO")) |>
+  mutate(field_office_name = case_when(field_office_name == "LAREDO" ~ "Laredo, TX",
+                   field_office_name == "SAN DIEGO" ~ "San Diego, CA", 
+                   field_office_name == "MIAMI" ~ "Miami, FL",
+                   field_office_name == "NEW ORLEANS" ~ "New Orleans, LA",
+                   field_office_name == "SAN FRANCISCO" ~ "San Francisco, CA"))
+
+join <- left_join(x = top_cities, y = n, by = "field_office_name")
+
+laredo <- st_point_on_surface(x = join) |>
+  filter(field_office_name == "Laredo, TX")
+
+miami <- st_point_on_surface(x = join) |>
+  filter(field_office_name == "Miami, FL")
+
+new_orleans <- st_point_on_surface(x = join) |>
+  filter(field_office_name == "New Orleans, LA")
+
+san_diego <- st_point_on_surface(x = join) |>
+  filter(field_office_name == "San Diego, CA")
+
+san_francisco <- st_point_on_surface(x = join) |>
+  filter(field_office_name == "San Francisco, CA")
+
 ggplot() + 
   geom_sf(data = states, fill = NA) + 
-  geom_sf(data = top_cities, color = "blue", size = 2.0, alpha = 0.5) +
+  geom_sf(data = laredo, color = "blue", size = 10) + 
+  geom_sf_text(data = laredo, aes(label = field_office_name,),
+               nudge_y = 2.0) +
+  geom_sf_text(data = laredo, aes(label = n),
+               nudge_y = -2.0) +
+  geom_sf(data = san_diego, color = "green", size = 8) +
+  geom_sf_text(data = san_diego, aes(label = field_office_name),
+               nudge_y = 2.0) +
+  geom_sf_text(data = san_diego, aes(label = n),
+               nudge_y = -2.0) +
+  geom_sf(data = san_francisco, color = "red", size = 2) +
+  geom_sf_text(data = san_francisco, aes(label = field_office_name),
+               nudge_y = 1.5, nudge_x = 1.5) +
+  geom_sf_text(data = san_francisco, aes(label = n),
+               nudge_y = -2.0) +
+  geom_sf(data = new_orleans, color = "orange", size = 4) +
+  geom_sf_text(data = new_orleans, aes(label = field_office_name),
+               nudge_y = 1.5) +
+  geom_sf_text(data = new_orleans, aes(label = n),
+               nudge_y = -2.0) +
+  geom_sf(data = miami, color = "pink", size = 6) +
+  geom_sf_text(data = miami, aes(label = field_office_name),
+               nudge_y = 1.5) +
+  geom_sf_text(data = miami, aes(label = n),
+               nudge_y = -2.0) +
   theme_void()
-
-# problem = doesn't look like points because they are not single longitude and latitude
-# I don't think the size and alpha arguments are doing anything here
-# thinking about making a matrix containing the longitude and latitude of the 
-# field offices and then overlaying that object on top of the map so that there
-# are points showing their locations
-# havent thought about how to add a label onto those points
 ```
