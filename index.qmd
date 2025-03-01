@@ -59,7 +59,16 @@ inadmissibles_2014 |>
 
 ```{r}
 
-
+inadmissibles_2014 |>
+  count(citizenship_country_name) |>
+  arrange(desc(n)) |>
+  mutate(country_rank = row_number()) |>
+  right_join(inadmissibles_2014, by = "citizenship_country_name") |>
+  filter(country_rank <= 10, !is.na(age_at_event_creation_time)) |>
+  ggplot() +
+  geom_boxplot(mapping = aes(x = fct_infreq(citizenship_country_name), y = age_at_event_creation_time)) +
+  labs(x = "Country of origin", y = "Age", title = "Age distributions by country of origin") +
+  theme(axis.text.x = element_text(angle = 45, vjust = .85))
 
 ```
 
