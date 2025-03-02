@@ -65,7 +65,7 @@ inadmissibles_2014 |>
 ```
 
 # Graph 02
-The visualization below displays boxplots containing the minimum, 25th percentile, median, 75th percentile, and maximum age of inadmissibles for each of the ten countries with the highest number of inadmissibles in 2014. The purpose of this visualization is descriptive. The age distribution in the top ten countries is important for understanding the profile of inadmissibles and how they differ in each country of origin. For policymakers crafting U.S. foreign aid policies, the age information of inadmissibles may assist them in understanding how needs vary across countries. 
+The visualization below displays boxplots containing the minimum, 25th percentile, median, 75th percentile, maximum, and outlier ages of inadmissibles for each of the ten countries with the highest number of inadmissibles in 2014. The purpose of this visualization is descriptive. The age distribution in the top ten countries is important for understanding the profile of inadmissibles and how they differ in each country of origin. For policymakers crafting U.S. foreign aid policies, the age information of inadmissibles may assist them in understanding how needs vary across countries. 
 
 ```{r}
 
