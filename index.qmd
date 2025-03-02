@@ -9,9 +9,14 @@ format:
     embed-resources: true
 ---
 
-# Data Preparation 
+# Data Preparation
+
+Data downloaded from [US Customs and Border Protection, Office of Field Operation Statistics](https://www.cbp.gov/document/foia-record/cbp-office-field-operations-statistics) (filename: CY 2014 OFO Inadmissibles).
 
 ```{r}
+
+#| output: false
+
 library(tidyverse)
 library(readxl)
 library(lubridate)
@@ -30,11 +35,10 @@ inadmissibles_2014 <-
   mutate(month = month(event_created_datetime)) |>
   mutate(month_name = month(event_created_datetime, label = TRUE, abbr = FALSE))
 
-glimpse(inadmissibles_2014)
-
 ```
 
 # Graph 01:
+
 This graph presents counts of inadmissibles for each of the top ten countries of origin, split by mode of transport. Understanding the magnitude of immigration overall is important for U.S. foreign policy and national security concerns. Seeing where immigrants without legal authorization come from and how they arrive in the U.S. can be important for helping Customs and Border Protection (CBP) determine how to allocate its resources. It may also be helpful to politicians and foreign policy experts in determining what countries and regions the U.S. should direct its attention to, and perhaps provide assistance to.
 
 ```{r}
@@ -65,7 +69,8 @@ inadmissibles_2014 |>
 ```
 
 # Graph 02
-The visualization below displays boxplots containing the minimum, 25th percentile, median, 75th percentile, maximum, and outlier ages of inadmissibles for each of the ten countries with the highest number of inadmissibles in 2014. The purpose of this visualization is descriptive. The age distribution in the top ten countries is important for understanding the profile of inadmissibles and how they differ in each country of origin. For policymakers crafting U.S. foreign aid policies, the age information of inadmissibles may assist them in understanding how needs vary across countries. 
+
+The visualization below displays boxplots containing the minimum, 25th percentile, median, 75th percentile, maximum, and outlier ages of inadmissibles for each of the ten countries with the highest number of inadmissibles in 2014. The purpose of this visualization is descriptive. The age distribution in the top ten countries is important for understanding the profile of inadmissibles and how they differ in each country of origin. For policymakers crafting U.S. foreign aid policies, the age information of inadmissibles may assist them in understanding how needs vary across countries.
 
 ```{r}
 
@@ -87,6 +92,7 @@ inadmissibles_2014 |>
 ```
 
 # Graph 03
+
 This graph highlights monthly variation in the number of inadmissibles entering via air, land, and sea for each of the top five countries in 2014. It is useful for CBP to understand how the number of inadmissibles entering using these modes of transport varies each month. CBP may reallocate resources in different months, depending on the mode of transport that will require expanded processing power. Understanding the country differences in how immigrants without legal authorization arrive in the U.S. is important for policymakers crafting policies aimed to strengthen ports of entry.
 
 ```{r}
@@ -120,6 +126,7 @@ inadmissibles_2014 |>
 ```
 
 # Graph 04
+
 This map presents the CBP field offices that processed the most inadmissibles in 2014. Laredo, San Diego, Miami, New Orleans, and San Francisco were the top five field offices for inadmissibles, respectively. Understanding the number of inadmissibles processed by these offices is important for CBP to effectively distribute resources. The offices processing the most inadmissibles require additional staff members. This information can inform more efficient processing at the busiest field offices.
 
 ```{r}
